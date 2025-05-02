@@ -34,8 +34,6 @@ One could imagine the amazon products mapping to insurance products attributes. 
 
 ### 3.1 High-Level System Design
 
-![System Architecture Diagram](https://placeholder-image.com/system-architecture.png)
-
 The system consists of the following components:
 
 1. **Data Processing Pipeline**: Loads and preprocesses ABO data
