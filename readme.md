@@ -9,7 +9,7 @@ ShopTalk is designed to revolutionize online shopping through AI-powered convers
 We propose adapting the ShopTalk framework to build a Hierarchy Code Ranking System that predicts appropriate hierarchy codes for insurance policies based on their attributes. This adaptation maintains the core technical challenges of the original project while applying them to a different domain with significant business impact.
 
 **Motivation:**
-My company will need to build a system along these lines for policy -> hierarchy code mappings in the future. I'd love to get a head start on this as a side project. The ABO dataset suggested for ShopTalk project should be a decent analog for policy data.
+My company will need to build a system along these lines for policy -> hierarchy code predictions/ranking in the future. I'd love to get a head start on this as a side project. The ABO dataset suggested for ShopTalk project should be a decent analog for policy data.
 
 **Technical Alignment:**
 Our adaptation will utilize the same Amazon Berkeley Objects (ABO) dataset as ShopTalk, but with a different end goal/output:
