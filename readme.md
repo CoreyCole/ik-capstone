@@ -9,7 +9,7 @@ ShopTalk is designed to revolutionize online shopping through AI-powered convers
 We propose adapting the ShopTalk framework to build a Hierarchy Code Ranking System that predicts appropriate hierarchy codes for insurance policies based on their attributes. This adaptation maintains the core technical challenges of the original project while applying them to a different domain with significant business impact.
 
 **Motivation:**
-My company will be building a system like this in the future and I would like to get a headstart on this and build a prototype system.
+The insurance industry faces challenges in consistently categorizing and organizing policies into appropriate hierarchy codes. Manual classification is time-consuming and prone to errors. By leveraging the same advanced AI techniques as ShopTalk, we can automate this process while maintaining high accuracy and consistency.
 
 **Technical Alignment:**
 Our adaptation will utilize the same Amazon Berkeley Objects (ABO) dataset as ShopTalk, but with a different mapping strategy:
@@ -22,13 +22,12 @@ Our adaptation will utilize the same Amazon Berkeley Objects (ABO) dataset as Sh
 1. **Data Processing Pipeline**
 
    - Load and preprocess ABO data
-   - Generate synthetic hierarchy codes through hierarchical clustering
+   - Generate synthetic hierarchy codes through clustering
 
 2. **Embedding Generation**
 
-   - Create vector representations of policies
+   - Create vector representations of products
    - Combine text, categorical, and numerical features
-   - Implement weighted embedding concatenation
 
 3. **Hierarchical Clustering**
 
@@ -39,26 +38,27 @@ Our adaptation will utilize the same Amazon Berkeley Objects (ABO) dataset as Sh
 
    - Train model using learning-to-rank approach
 
-5. **DAGSTER Pipeline**
+5. **Dagster Pipeline**
 
-   - Create data pipeline for training dataset upload
-   - Implement web interface for training uploads, configuration management, and prediction submission
+   - Create data pipeline for training dataset upload (labels must be provided; system will not generate synthetic hierarchy codes for uploaded data)
+   - Implement web interface for training data uploading, model management and configuration, and inference submission
    - Build feedback loop for model improvement
 
 **Deliverables:**
 
-1. Extended ABO dataset with a new synthetic column 'hierarchy code'
+1. Data preprocessing pipeline
 
-   - Data preprocessing pipeline
-   - Segment the data using hierarchical clustering to generate synthetic 'hierarchy codes' that relate to the ABO product attributes
+   - Extend the ABO dataset with new synthetic 'hierarchy code' column
+   - Segment data using hierarchical clustering to generate hierarchy codes that relate to the product information
 
 2. Working prototype with:
 
-   - Embedding generation system
+   - Embedding generation and vector database search system
    - XGBoost ranking model
    - Basic web interface for predictions
 
-3. DAGSTER pipeline for new data sets:
-   - Training dataset upload functionality (labels must be provided; system will not generate syntehtic 'hierarchy codes' for uploaded training data)
+3. DAGSTER pipeline extension:
+
+   - Training dataset upload functionality
    - Prediction submission interface
    - Model retraining capabilities
