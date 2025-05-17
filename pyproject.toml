@@ -1,0 +1,83 @@
+[project]
+name = "hierarchy-ranking"
+version = "0.1.0"
+description = "Hierarchy Code Ranking System using XGBoost's learning-to-rank capabilities"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+dependencies = [
+    "boto3>=1.34.130",
+    "boto3-stubs>=1.34.130",
+    "dagster>=1.8.13",
+    "dagster-aws>=0.24.13",
+    "dagster-dbt>=0.24.13",
+    "dagster-polars>=0.24.13",
+    "dagster-postgres>=0.24.13",
+    "dagster-sling>=0.26.12",
+    "dagster-snowflake>=0.26.13",
+    "dagster-webserver>=1.8.13",
+    "dbt-postgres>=1.8.2",
+    "dbt-snowflake>=1.9.4",
+    "fastexcel>=0.12.0",
+    "matplotlib>=3.7.0",
+    "ndjson>=0.3.1",
+    "numpy>=1.24.0",
+    "orjson>=3.10.5",
+    "pandas>=2.2.2",
+    "polars>=1.26.0",
+    "psycopg2-binary>=2.9.10",
+    "pyarrow>=16.1.0",
+    "python-dotenv>=1.0.1",
+    "requests>=2.31.0",
+    "s3fs>=2025.3.0",
+    "scikit-learn>=1.3.0",
+    "sentence-transformers>=2.2.0",
+    "sentry-sdk>=2.14.0",
+    "seaborn>=0.12.0",
+    "sling>=1.4.6",
+    "smart-open>=7.0.4",
+    "temporalio>=1.6.0",
+    "torch>=2.0.0",
+    "tqdm>=4.65.0",
+    "transformers>=4.30.0",
+    "xgboost>=2.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "basedpyright>=1.20.0",
+    "debugpy>=1.8.7",
+    "pytest>=8.3.3",
+    "ruff>=0.7.1",
+    "types-boto3[full]>=1.38.12",
+]
+
+[tool.dagster]
+module_name = "pipeline"
+
+[tool.basedpyright]
+include = ["pipeline", "pipeline_tests"]
+stubPath = "pipeline/stubs"
+reportMissingImports = "error"
+reportMissingTypeStubs = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownArgumentType = false
+reportUnknownLambdaType = false
+reportUnknownVariableType = false
+reportAny = false
+
+[tool.ruff]
+line-length = 88
+indent-width = 4
+target-version = "py312"
+src = ["pipeline", "pipeline_tests"]
+unsafe-fixes = true
+show-fixes = true
+
+[[tool.uv.index]]
+url = "https://pypi.org/simple"
+default = true
+
+[tool.mypy]
+plugins = ['pydantic.mypy']
