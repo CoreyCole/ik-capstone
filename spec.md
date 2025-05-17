@@ -96,22 +96,56 @@ We'll implement a 3-level hierarchical clustering approach:
 
 1. **Level 1**: Broad categories (~8 clusters)
 
-   - Use AgglomerativeClustering with 'ward' linkage
-   - Parameters: n_clusters=8, affinity='euclidean'
+   - Use MiniBatchKMeans for memory-efficient processing of large datasets
+   - Parameters: n_clusters=10 (default, configurable)
 
 2. **Level 2**: Subcategories (~15 clusters)
 
-   - Parameters: n_clusters=15, affinity='euclidean'
+   - Parameters: n_clusters=20 (default, configurable)
+   - Adaptive allocation based on L1 cluster sizes
 
 3. **Level 3**: Detailed groupings (~30 clusters)
-   - Parameters: n_clusters=30, affinity='euclidean'
+   - Parameters: n_clusters=40 (default, configurable)
+   - Adaptive allocation based on L2 cluster sizes
 
 **Code Generation Logic**:
 
 ```python
-def generate_hierarchy_code(product_type, l1_cluster, l2_cluster, l3_cluster):
-    type_code = TYPE_MAPPING.get(product_type, 'GEN')
-    return f"{type_code}-{l1_cluster:02d}{l2_cluster:02d}-{l3_cluster:02d}"
+def generate_hierarchy_codes(df, l1_clusters, l2_clusters, l3_clusters):
+    # Create mapping from product_type to type code
+    # Each product type gets first 3 letters capitalized + numeric suffix
+    # e.g., "sofa" → "SOF000"
+
+    # Get unique product types
+    unique_types = df.select("product_type").unique()
+
+    # Create type mapping with unique codes
+    type_mapping = {}
+    used_codes = set()
+
+    for pt in unique_types:
+        if pt is None or not pt:
+            continue
+        pt_norm = normalize_type(pt)
+
+        # Get first three characters, uppercase
+        base_code = pt_norm[:3].upper()
+
+        # Add numeric suffix to ensure uniqueness
+        counter = 0
+        while f"{base_code}{counter:03d}" in used_codes:
+            counter += 1
+        code = f"{base_code}{counter:03d}"
+
+        type_mapping[pt_norm] = code
+        used_codes.add(code)
+
+    # Generate the final hierarchy code
+    return (
+        type_code + "-" +
+        f"{l1_cluster:02d}" + f"{l2_cluster:02d}" + "-" +
+        f"{l3_cluster:02d}"
+    )
 ```
 
 #### 4.3.2 Split data into train, test and validate
@@ -238,16 +272,72 @@ The system will be evaluated using the following metrics:
    from sklearn.metrics import ndcg_score
    ```
 
-## 6. References
+## 6. Implementation Files
+
+The system is implemented through several Python scripts, each handling different aspects of the data pipeline:
+
+### 6.1 Data Preprocessing (`pre_process_data.py`)
+
+- **Purpose**: Loads and preprocesses ABO dataset for clustering and embedding generation
+- **Key Components**:
+  - Extracts `.gz` files containing JSONL data
+  - Loads product listings with handling for schema inconsistencies
+  - Selects relevant columns for clustering (product_type, brand, model_name, etc.)
+  - Preprocesses text fields with Polars DataFrame operations
+  - Generates embeddings using SentenceTransformer ('paraphrase-MiniLM-L6-v2')
+  - Combines text (60%), categorical (30%), and numerical (10%) embeddings
+  - Serializes the embeddings with the data to a parquet file
+
+### 6.2 Hierarchical Clustering (`cluster_data.py`)
+
+- **Purpose**: Applies multi-level hierarchical clustering to generate hierarchy codes
+- **Key Components**:
+  - Implements batch processing for memory-efficient clustering of large datasets
+  - Uses MiniBatchKMeans algorithm for each clustering level
+  - First level: Broad categories (configurable number of clusters)
+  - Second level: Subcategories within each L1 cluster
+  - Third level: Detailed groupings within each L2 cluster
+  - Maps product types to type codes
+  - Generates hierarchy codes in the format "TYPE-L1L2-L3"
+  - Analyzes cluster distributions and visualizes clusters with PCA
+  - Supports command-line arguments for cluster parameters
+
+### 6.3 Hierarchy Code Assignment (`assign_hierarchy_codes.py`)
+
+- **Purpose**: Performs the final assignment of hierarchy codes to product listings
+- **Key Components**:
+  - Creates a mapping from product types to type codes (e.g., "sofa" → "SOF000")
+  - Uses a consistent format: TYPE-L1L2-L3
+    - TYPE: Three-letter code derived from product type with numeric suffix
+    - L1: Two-digit level 1 cluster ID
+    - L2: Two-digit level 2 cluster ID
+    - L3: Two-digit level 3 cluster ID
+  - Tracks unmatched product types for further analysis
+  - Generates unique type codes to avoid collisions
+
+### 6.4 Cluster Analysis (`analyze_clusters.py`)
+
+- **Purpose**: Analyzes the results of clustering and hierarchy code assignment
+- **Key Components**:
+  - Analyzes the distribution of hierarchy codes across the dataset
+  - Examines cluster sizes and distribution at each level
+  - Analyzes product type distributions within clusters
+  - Creates visualizations:
+    - PCA-based scatter plots of clusters
+    - Bar charts of hierarchy code distribution
+    - Cluster size distribution plots
+  - Identifies patterns and insights from the clustering process
+
+## 7. References
 
 1. Amazon Berkeley Objects Dataset: https://amazon-berkeley-objects.s3.amazonaws.com/index.html
 2. XGBoost Learning to Rank Documentation: https://xgboost.readthedocs.io/en/stable/tutorials/learning_to_rank.html
 3. Hierarchical Clustering: https://scikit-learn.org/stable/modules/clustering.html#hierarchical-clustering
 4. SentenceTransformers: https://www.sbert.net/
 
-## 7. Appendix
+## 8. Appendix
 
-### 7.1 Sample Data Structure
+### 8.1 Sample Data Structure
 
 Sample ABO product listing:
 
@@ -284,15 +374,17 @@ Sample ABO product listing:
 }
 ```
 
-### 7.2 Example Hierarchy Code
+### 8.2 Example Hierarchy Code
 
 ```
-SEA-0102-05
+SOF000-0102-05
 ```
 
 Where:
 
-- `SEA`: Seating category (from product_type mapping)
+- `SOF000`: Type code for "sofa" category (first 3 letters + numeric suffix)
 - `01`: Level 1 cluster ID
 - `02`: Level 2 cluster ID
 - `05`: Level 3 cluster ID
+
+This format allows for easy categorization and retrieval of similar items.

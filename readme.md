@@ -1,5 +1,17 @@
 ### Project-6: ShopTalk - Conversational Shopping Assistant Adaptation Proposal
 
+#### Setup
+
+Use the dockerfile to try the demo. To build the docker image, some files are git ignored or in git-lfs
+
+```bash
+# pull all git lfs files
+git lfs pull
+
+# run the data setup script
+uv run abo-dataset/pre_process_data.py
+```
+
 #### Project Adaptation: Hierarchy Code Ranking System
 
 **Original Project Overview:**
